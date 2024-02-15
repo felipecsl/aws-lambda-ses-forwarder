@@ -2,7 +2,7 @@
 
 var AWS = require('aws-sdk');
 
-console.log("AWS Lambda SES Forwarder // @arithmetric // Version 5.1.0");
+console.log("AWS Lambda SES Forwarder // @arithmetric // Version 5.0.0");
 
 // Configure the S3 bucket and key prefix for stored raw emails, and the
 // mapping of email addresses to forward from and to.
@@ -36,24 +36,17 @@ console.log("AWS Lambda SES Forwarder // @arithmetric // Version 5.1.0");
 //
 //   To match all email addresses matching no other mapping, use "@" as a key.
 var defaultConfig = {
-  fromEmail: "noreply@example.com",
+  fromEmail: "hello@juliagall.com",
   subjectPrefix: "",
-  emailBucket: "s3-bucket-name",
-  emailKeyPrefix: "emailsPrefix/",
+  emailBucket: "juliagall.mailbox",
+  emailKeyPrefix: "",
   allowPlusSign: true,
   forwardMapping: {
-    "info@example.com": [
-      "example.john@example.com",
-      "example.jen@example.com"
+    "hello@juliagall.com": [
+      "juliaagall@gmail.com"
     ],
-    "abuse@example.com": [
-      "example.jim@example.com"
-    ],
-    "@example.com": [
-      "example.john@example.com"
-    ],
-    "info": [
-      "info@example.com"
+    "@juliagall.com": [
+      "juliaagall@gmail.com"
     ]
   }
 };
@@ -262,7 +255,7 @@ exports.processMessage = function(data) {
 
   // Replace original 'To' header with a manually defined one
   if (data.config.toEmail) {
-    header = header.replace(/^to:[\t ]?(.*)/mgi, 'To: ' + data.config.toEmail);
+    header = header.replace(/^to:[\t ]?(.*)/mgi, () => 'To: ' + data.config.toEmail);
   }
 
   // Remove the Return-Path header.
@@ -377,9 +370,8 @@ exports.handler = function(event, context, callback, overrides) {
 Promise.series = function(promises, initValue) {
   return promises.reduce(function(chain, promise) {
     if (typeof promise !== 'function') {
-      return chain.then(() => {
-        throw new Error("Error: Invalid promise item: " + promise);
-      });
+      return Promise.reject(new Error("Error: Invalid promise item: " +
+        promise));
     }
     return chain.then(promise);
   }, Promise.resolve(initValue));
